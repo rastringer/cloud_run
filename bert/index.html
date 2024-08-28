@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Text Classifier</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        textarea { width: 100%; height: 200px; }
+        #result { margin-top: 20px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>Legal Text Classifier</h1>
+    <form id="classifyForm">
+        <p>Enter legal text to classify:</p>
+        <textarea id="inputText" required>The court finds the defendant guilty of all charges.</textarea>
+        <br><br>
+        <button type="submit">Classify</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('classifyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const inputText = document.getElementById('inputText').value;
+            const resultDiv = document.getElementById('result');
+            
+            resultDiv.textContent = 'Processing...';
+            
+            try {
+                const response = await fetch('/classify', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ inputs: inputText }),
+                });
+                
+                const data = await response.json();
+                
+                resultDiv.innerHTML = '<h2>Classification Results:</h2>' + data.map(item => 
+                    `<p><strong>${item.label}</strong>: ${(item.score * 100).toFixed(2)}%</p>`
+                ).join('');
+            } catch (error) {
+                resultDiv.textContent = 'Error: ' + error.message;
+            }
+        });
+    </script>
+</body>
+</html>
